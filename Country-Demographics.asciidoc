@@ -1,0 +1,317 @@
++*In[14]:*+
+[source, ipython3]
+----
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.pylab as pylab
+import seaborn as sns
+from plotly import __version__
+import cufflinks as cf
+from plotly.offline import download_plotlyjs, init_notebook_mode,plot,iplot
+init_notebook_mode(connected = True)
+cf.go_offline()
+
+%matplotlib inline
+from matplotlib import rcParams
+rcParams['figure.figsize'] = 8,8
+import warnings
+warnings.filterwarnings('ignore')
+----
+
+
++*Out[14]:*+
+----
+
+
+
+----
+
+
++*In[15]:*+
+[source, ipython3]
+----
+df = pd.read_csv('C:/Users/omprakash/Downloads/country/country.csv', decimal=",")
+----
+
+
++*In[16]:*+
+[source, ipython3]
+----
+df.columns = (["Country","Region","Population","Area","PopulationDensity","Coastline","Migration","InfantMortalityPer1000" ,"GDP","LiteracyRate","PhonesPer1000","FertileLand","Crops","Other","Climate","BirthRate","DeathRate","Agriculture","Industry","Service"])
+----
+
+
++*In[17]:*+
+[source, ipython3]
+----
+df.Country = df.Country.astype('category')
+df.Region = df.Region.astype('category')
+df.dtypes
+----
+
+
++*Out[17]:*+
+----Country                   category
+Region                    category
+Population                   int64
+Area                         int64
+PopulationDensity          float64
+Coastline                  float64
+Migration                  float64
+InfantMortalityPer1000     float64
+GDP                        float64
+LiteracyRate               float64
+PhonesPer1000              float64
+FertileLand                float64
+Crops                      float64
+Other                      float64
+Climate                    float64
+BirthRate                  float64
+DeathRate                  float64
+Agriculture                float64
+Industry                   float64
+Service                    float64
+dtype: object----
+
+
++*In[18]:*+
+[source, ipython3]
+----
+missing = df.isnull().sum()
+missing
+df.fillna(df.mean(),inplace=True)
+df = df.drop('Other', 1)
+df.region = df.Region.str.strip()
+df.head(10)
+----
+
+
++*Out[18]:*+
+----
+[cols=",,,,,,,,,,,,,,,,,,,",options="header",]
+|=======================================================================
+| |Country |Region |Population |Area |PopulationDensity |Coastline
+|Migration |InfantMortalityPer1000 |GDP |LiteracyRate |PhonesPer1000
+|FertileLand |Crops |Climate |BirthRate |DeathRate |Agriculture
+|Industry |Service
+|0 |Afghanistan |ASIA (EX. NEAR EAST) |31056997 |647500 |48.0 |0.00
+|23.06 |163.07 |700.0 |36.0 |3.2 |12.13 |0.22 |1.000000 |46.60 |20.34
+|0.380000 |0.240000 |0.380000
+
+|1 |Albania |EASTERN EUROPE |3581655 |28748 |124.6 |1.26 |-4.93 |21.52
+|4500.0 |86.5 |71.2 |21.09 |4.42 |3.000000 |15.11 |5.22 |0.232000
+|0.188000 |0.579000
+
+|2 |Algeria |NORTHERN AFRICA |32930091 |2381740 |13.8 |0.04 |-0.39
+|31.00 |6000.0 |70.0 |78.1 |3.22 |0.25 |1.000000 |17.14 |4.61 |0.101000
+|0.600000 |0.298000
+
+|3 |American Samoa |OCEANIA |57794 |199 |290.4 |58.29 |-20.71 |9.27
+|8000.0 |97.0 |259.5 |10.00 |15.00 |2.000000 |22.46 |3.27 |0.150844
+|0.282711 |0.565283
+
+|4 |Andorra |WESTERN EUROPE |71201 |468 |152.1 |0.00 |6.60 |4.05
+|19000.0 |100.0 |497.2 |2.22 |0.00 |3.000000 |8.71 |6.25 |0.150844
+|0.282711 |0.565283
+
+|5 |Angola |SUB-SAHARAN AFRICA |12127071 |1246700 |9.7 |0.13 |0.00
+|191.19 |1900.0 |42.0 |7.8 |2.41 |0.24 |2.139024 |45.11 |24.20 |0.096000
+|0.658000 |0.246000
+
+|6 |Anguilla |LATIN AMER. & CARIB |13477 |102 |132.1 |59.80 |10.76
+|21.03 |8600.0 |95.0 |460.0 |0.00 |0.00 |2.000000 |14.17 |5.34 |0.040000
+|0.180000 |0.780000
+
+|7 |Antigua & Barbuda |LATIN AMER. & CARIB |69108 |443 |156.0 |34.54
+|-6.15 |19.46 |11000.0 |89.0 |549.9 |18.18 |4.55 |2.000000 |16.93 |5.37
+|0.038000 |0.220000 |0.743000
+
+|8 |Argentina |LATIN AMER. & CARIB |39921833 |2766890 |14.4 |0.18 |0.61
+|15.18 |11200.0 |97.1 |220.4 |12.31 |0.48 |3.000000 |16.73 |7.55
+|0.095000 |0.358000 |0.547000
+
+|9 |Armenia |C.W. OF IND. STATES |2976372 |29800 |99.9 |0.00 |-6.47
+|23.28 |3500.0 |98.6 |195.7 |17.55 |2.30 |4.000000 |12.07 |8.23
+|0.239000 |0.343000 |0.418000
+|=======================================================================
+----
+
+
++*In[19]:*+
+[source, ipython3]
+----
+f, axes = plt.subplots(2,1,figsize=(15,10))
+
+
+Region = df.Region.value_counts()
+k1 = sns.barplot(data = df, y = Region.index, x = Region.values, orient = "h", palette='inferno_r')
+plt.xlabel('Number of countries')
+plt.ylabel('Region')
+plt.title('Classification of Number of Countries by Region')
+sns.set_style('whitegrid')
+plt.show()
+
+sns.set_style('whitegrid')
+byRegion = df.groupby('Region')
+byRegion.sum().Area
+k1 = sns.barplot(data = df, y = Region.index, x = byRegion.sum().Area, orient = "h", palette='inferno_r')
+plt.xlabel('Area')
+plt.ylabel('Region')
+plt.title('Classification of Regions by Total Area')
+plt.show()
+
+
+
+
+
+----
+
+
++*Out[19]:*+
+----
+![png](output_5_0.png)
+
+![png](output_5_1.png)
+----
+
+
++*In[42]:*+
+[source, ipython3]
+----
+sns.set_style('whitegrid')
+sns.jointplot(data = df, x = 'Industry', y= 'InfantMortalityPer1000', \
+              kind = 'hex', height = 9, space = 0, color="#4CB391")
+plt.show()
+
+
+----
+
+
++*Out[42]:*+
+----
+![png](output_6_0.png)
+----
+
+
++*In[21]:*+
+[source, ipython3]
+----
+sns.distplot(df.DeathRate, bins = 10,hist = False, label = 'Death Rate' )
+sns.distplot(df.BirthRate, bins = 10,hist = False, label = 'Birth Rate')
+plt.show()
+----
+
+
++*Out[21]:*+
+----
+![png](output_7_0.png)
+----
+
+
++*In[22]:*+
+[source, ipython3]
+----
+sns.lmplot(data = df, x = 'LiteracyRate', y = 'BirthRate', fit_reg = False, hue = 'Region', height = 8, palette = 'inferno_r')
+plt.show()
+
+----
+
+
++*Out[22]:*+
+----
+![png](output_8_0.png)
+----
+
+
++*In[23]:*+
+[source, ipython3]
+----
+sns.set_style('white')
+sns.kdeplot(df.Agriculture, df.FertileLand, shade = True, cmap = 'Reds', shade_lowest = False)
+sns.kdeplot(df.Agriculture, df.FertileLand, cmap = 'Reds')
+
+
+plt.show()
+----
+
+
++*Out[23]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*In[24]:*+
+[source, ipython3]
+----
+df['Progress'] = round(df['Industry']/df['Agriculture'])
+df.replace([np.inf, -np.inf], np.nan,inplace=True)
+sns.set_style('whitegrid')
+sns.barplot(data = df, y = 'Region', x = 'Progress')
+plt.xlim(0,20)
+plt.show()
+----
+
+
++*Out[24]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*In[25]:*+
+[source, ipython3]
+----
+sns.set_style('whitegrid')
+byRegion = df.groupby('Region')
+byRegion.sum().Area
+k1 = sns.barplot(data = df, y = Region.index, x = byRegion.sum().Area, orient = "h", palette='inferno_r')
+plt.xlabel('Area')
+plt.ylabel('Region')
+plt.title('Classification of Regions by Total Area')
+
+plt.show()
+
+
+----
+
+
++*Out[25]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*In[29]:*+
+[source, ipython3]
+----
+sns.clustermap(df.corr(), cmap = 'summer', linewidth = 2, linecolor = 'black')
+----
+
+
++*Out[29]:*+
+----<seaborn.matrix.ClusterGrid at 0x15cebbb1648>
+![png](output_12_1.png)
+----
+
+
++*In[ ]:*+
+[source, ipython3]
+----
+
+----
+
+
++*In[ ]:*+
+[source, ipython3]
+----
+
+----
+
+
++*In[ ]:*+
+[source, ipython3]
+----
+
+----
